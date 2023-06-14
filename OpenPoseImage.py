@@ -2,6 +2,9 @@ import cv2
 import time
 import numpy as np
 import argparse
+from PIL import Image 
+import PIL 
+import math
 
 parser = argparse.ArgumentParser(description='Run keypoint detection')
 parser.add_argument("--device", default="cpu", help="Device to inference on")
@@ -76,6 +79,8 @@ for i in range(nPoints):
 
         # Add the point to the list if the probability is greater than the threshold
         points.append((int(x), int(y)))
+        print(points)
+        
     else :
         points.append(None)
 
@@ -92,11 +97,42 @@ for pair in POSE_PAIRS:
 cv2.imshow('Output-Keypoints', frameCopy)
 cv2.imshow('Output-Skeleton', frame)
 
-
 cv2.imwrite('Output-Keypoints.jpg', frameCopy)
 cv2.imwrite('Output-Skeleton.jpg', frame)
-
 print("Total time taken : {:.3f}".format(time.time() - t))
 
+# Taille en cm / taille en pixel
+MAC_PIXEL_TO_CM = 0.12454
+BACK_CAMERA_PIXEL_TO_CM = 0.09381898455
+FRONT_CAMERA_PIXEL_TO_CM = 0.1019184652
+
+if MODE is "COCO":
+    print("Body Measurments:")
+    rightShoulderLength = math.dist(points[1],points[2])
+    print("Right shoulder length:", rightShoulderLength, "px", "|", rightShoulderLength*FRONT_CAMERA_PIXEL_TO_CM,"cm")
+    rightBicepsLength = math.dist(points[2],points[3])
+    print("Right biceps length:", rightBicepsLength,"px", "|", rightBicepsLength*FRONT_CAMERA_PIXEL_TO_CM,"cm")
+    rightForearmLength = math.dist(points[3],points[4])
+    print("Right forearm length:", rightForearmLength,"px", "|", rightForearmLength*FRONT_CAMERA_PIXEL_TO_CM,"cm")
+    rightArmLength = rightShoulderLength + rightBicepsLength + rightForearmLength
+    print("Right arm length:", rightArmLength, "px", "|", rightArmLength*FRONT_CAMERA_PIXEL_TO_CM,"cm")
+
+
+
+    leftShoulderLength = math.dist(points[1],points[5])
+    print("Left shoulder length:", leftShoulderLength, "px", "|", leftShoulderLength*FRONT_CAMERA_PIXEL_TO_CM,"cm")
+    leftBicepsLength = math.dist(points[5],points[6])
+    print("Left biceps length:", leftBicepsLength,"px",  "|", leftBicepsLength*FRONT_CAMERA_PIXEL_TO_CM,"cm")
+    leftForearmLength = math.dist(points[6],points[7])
+    print("Left foremarm length:", leftForearmLength,"px",  "|", leftForearmLength*FRONT_CAMERA_PIXEL_TO_CM,"cm")
+    leftArmLength = leftShoulderLength + rightBicepsLength + leftForearmLength
+    print("Left arm length:", leftArmLength, "px",  "|", leftArmLength*FRONT_CAMERA_PIXEL_TO_CM,"cm")
+
+    shoulderToShoulderLength = rightShoulderLength + leftShoulderLength
+    print("Shoulder to shoulder length:", shoulderToShoulderLength, "px",  "|", shoulderToShoulderLength*FRONT_CAMERA_PIXEL_TO_CM,"cm")
+
+    
+
 cv2.waitKey(0)
+
 
